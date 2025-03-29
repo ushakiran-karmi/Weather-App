@@ -1,25 +1,4 @@
 import React, { useState } from "react";
-
-interface WeatherResponse {
-  city: {
-    name: string;
-    country: string;
-  };
-  list: {
-    dt: number;
-    main: {
-      temp: number;
-      humidity: number;
-    };
-    weather: {
-      description: string;
-      icon: string;
-    }[];
-    wind: {
-      speed: number;
-    };
-  }[];
-}
 import axios from "axios";
 import {
   TextField,
@@ -42,16 +21,17 @@ import WbSunnyIcon from "@mui/icons-material/WbSunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
-const API_URL = "https://api.openweathermap.org/data/2.5/forecast";
+const CURRENT_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
+const FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast";
 
 const Weather: React.FC = () => {
   const [city, setCity] = useState("");
+  const [currentWeather, setCurrentWeather] = useState<any>(null);
   const [forecast, setForecast] = useState<any>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [bgColor, setBgColor] = useState("#e3f2fd"); // Default background color
-      // const response = await axios.get<WeatherResponse>(API_URL, { // Removed misplaced await statement
+  const [bgColor, setBgColor] = useState("#e3f2fd");
 
   const theme = createTheme({
     palette: {
@@ -61,6 +41,24 @@ const Weather: React.FC = () => {
       },
     },
   });
+
+  type ForecastResponse = {
+    city: {
+      name: string;
+      country: string;
+    };
+    list: {
+      dt: number;
+      main: {
+        temp: number;
+        humidity: number;
+      };
+      weather: {
+        description: string;
+        icon: string;
+      }[];
+    }[];
+  };
 
   const fetchWeather = async () => {
     if (!city.trim()) {
@@ -72,12 +70,16 @@ const Weather: React.FC = () => {
     setError("");
 
     try {
-      const response = await axios.get<WeatherResponse>(API_URL, {
+      const currentResponse = await axios.get(CURRENT_WEATHER_URL, {
+        params: { q: city, appid: API_KEY, units: "metric" },
+      });
+      setCurrentWeather(currentResponse.data);
+
+      const forecastResponse = await axios.get<ForecastResponse>(FORECAST_URL, {
         params: { q: city, appid: API_KEY, units: "metric" },
       });
       
-      // Extract unique days from the forecast data
-      const dailyForecast = response.data.list.reduce((acc: any[], item) => {
+      const dailyForecast = forecastResponse.data.list.reduce((acc: any[], item) => {
         const date = new Date(item.dt * 1000).toLocaleDateString();
         if (!acc.some((entry) => entry.date === date)) {
           acc.push({ ...item, date });
@@ -85,9 +87,10 @@ const Weather: React.FC = () => {
         return acc;
       }, []);
       
-      setForecast({ city: response.data.city, list: dailyForecast.slice(0, 10) });
+      setForecast({ city: forecastResponse.data.city, list: dailyForecast.slice(0, 10) });
     } catch (err: any) {
       setError("City not found. Please try again.");
+      setCurrentWeather(null);
       setForecast(null);
     } finally {
       setLoading(false);
@@ -146,14 +149,32 @@ const Weather: React.FC = () => {
           </Typography>
         )}
 
+        {currentWeather && (
+          <Card sx={{ p: 3, backgroundColor: "background.paper", textAlign: "center", mb: 3 }}>
+            <CardContent>
+              <Typography variant="h4">{currentWeather.name}, {currentWeather.sys.country}</Typography>
+              <img
+                src={`https://openweathermap.org/img/wn/${currentWeather.weather[0].icon}@2x.png`}
+                alt="Weather Icon"
+              />
+              <Typography variant="h5" sx={{ textTransform: "capitalize" }}>
+                {currentWeather.weather[0].description}
+              </Typography>
+              <Typography variant="h3" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                {Math.round(currentWeather.main.temp)}°C
+              </Typography>
+              <Typography variant="body1">Humidity: {currentWeather.main.humidity}%</Typography>
+              <Typography variant="body1">Wind Speed: {currentWeather.wind.speed} m/s</Typography>
+            </CardContent>
+          </Card>
+        )}
+
         {forecast && (
           <Box sx={{ mt: 3, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 2 }}>
             {forecast.list.map((day: any, index: number) => (
               <Card key={index} sx={{ p: 2, backgroundColor: "background.paper", width: 200, textAlign: "center" }}>
                 <CardContent>
-                  <Typography variant="h6">
-                    {day.date}
-                  </Typography>
+                  <Typography variant="h6">{day.date}</Typography>
                   <img
                     src={`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`}
                     alt="Weather Icon"
