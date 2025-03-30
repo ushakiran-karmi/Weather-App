@@ -57,11 +57,11 @@ const Weather: React.FC<WeatherProps> = ({ isDarkMode }) => {
   }, []);
 
   const weatherBackgrounds: { [key: string]: string } = {
-    Clear: "https://source.unsplash.com/800x600/?clear-sky",
-    Clouds: "https://source.unsplash.com/800x600/?clouds",
-    Rain: "https://source.unsplash.com/800x600/?rain",
-    Snow: "https://source.unsplash.com/800x600/?snow",
-    Thunderstorm: "https://source.unsplash.com/800x600/?storm",
+    Clear: "C:\Users\Lenovo\OneDrive\Desktop\File Upload\Weather App\weather\public\sky.jpg",
+    Clouds:"C:\Users\Lenovo\OneDrive\Desktop\File Upload\Weather App\weather\public\Cloudy.jpg",
+    Rain: "C:\Users\Lenovo\OneDrive\Desktop\File Upload\Weather App\weather\public\Rainy",
+    Snow: "C:\Users\Lenovo\OneDrive\Desktop\File Upload\Weather App\weather\public\Snow.jpg",
+    Thunderstorm: "C:\Users\Lenovo\OneDrive\Desktop\File Upload\Weather App\weather\public\Thunderstorm.jpg",
     Mist: "https://source.unsplash.com/800x600/?mist",
     Default: "https://source.unsplash.com/800x600/?weather",
   };
