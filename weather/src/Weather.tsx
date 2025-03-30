@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   TextField,
@@ -46,6 +46,15 @@ const Weather: React.FC<WeatherProps> = ({ isDarkMode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [bgImage, setBgImage] = useState("");
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const weatherBackgrounds: { [key: string]: string } = {
     Clear: "https://source.unsplash.com/800x600/?clear-sky",
@@ -105,6 +114,10 @@ const Weather: React.FC<WeatherProps> = ({ isDarkMode }) => {
         transition: "background 0.5s ease-in-out",
       }}
     >
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Current Time: {currentTime.toLocaleTimeString()}
+      </Typography>
+
       <Box display="flex" justifyContent="center" gap={2}>
         <TextField
           variant="outlined"
@@ -113,20 +126,10 @@ const Weather: React.FC<WeatherProps> = ({ isDarkMode }) => {
           onChange={(e) => setCity(e.target.value)}
           fullWidth
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => fetchWeather(city)}
-          startIcon={<SearchIcon />}
-        >
+        <Button variant="contained" color="primary" onClick={() => fetchWeather(city)} startIcon={<SearchIcon />}>
           Search
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={fetchWeatherByLocation}
-          startIcon={<MyLocationIcon />}
-        >
+        <Button variant="contained" color="secondary" onClick={fetchWeatherByLocation} startIcon={<MyLocationIcon />}>
           Use My Location
         </Button>
       </Box>

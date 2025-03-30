@@ -8,6 +8,7 @@ const ForecastCard: React.FC<{ data: any }> = ({ data }) => {
         <Card key={index} sx={{ p: 2, width: 150, textAlign: "center" }}>
           <CardContent>
             <Typography variant="h6">{new Date(day.dt * 1000).toLocaleDateString()}</Typography>
+            <Typography variant="subtitle2">{new Date(day.dt * 1000).toLocaleTimeString()}</Typography>
             <img src={`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`} alt="Weather Icon" />
             <Typography>{day.weather[0].description}</Typography>
             <Typography variant="h5">{Math.round(day.main.temp)}°C</Typography>
